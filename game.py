@@ -3,6 +3,7 @@ import pygame
 import random
 
 from pygame.locals import (
+    RLEACCEL,
     K_UP,
     K_DOWN,
     K_LEFT,
@@ -10,6 +11,8 @@ from pygame.locals import (
     K_ESCAPE,
     KEYDOWN,
     QUIT,
+    MOUSEBUTTONDOWN,
+    MOUSEMOTION
 )
 
 # Define constants for the screen width and height
@@ -17,6 +20,7 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 running = True
+clock = pygame.time.Clock()
 
 # The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -27,20 +31,22 @@ pygame.time.set_timer(ADDENEMY, 250)
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
-        self.surf = pygame.Surface((75, 25))
-        self.surf.fill((255, 255, 255))
+        self.surf = pygame.image.load("./pieces/chess.com/68747470733a2f2f696d616765732e6368657373636f6d66696c65732e636f6d2f63686573732d7468656d65732f7069656365732f6e656f2f3235362f626b2e706e67.png").convert()
+        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
+        # self.surf = pygame.Surface((75, 25))
+        # self.surf.fill((255, 255, 255))
         self.rect = self.surf.get_rect()
 
     # Move the sprite based on user keypresses
     def update(self, pressed_keys):
         if pressed_keys[K_UP]:
-            self.rect.move_ip(0, -5)
+            self.rect.move_ip(0, -2)
         if pressed_keys[K_DOWN]:
-            self.rect.move_ip(0, 5)
+            self.rect.move_ip(0, 2)
         if pressed_keys[K_LEFT]:
-            self.rect.move_ip(-5, 0)
+            self.rect.move_ip(-2, 0)
         if pressed_keys[K_RIGHT]:
-            self.rect.move_ip(5, 0)
+            self.rect.move_ip(2, 0)
 
         # Keep player on the screen
         if self.rect.left < 0:
@@ -64,7 +70,7 @@ class Enemy(pygame.sprite.Sprite):
                 random.randint(0, SCREEN_HEIGHT),
             )
         )
-        self.speed = random.randint(5, 20)
+        self.speed = random.randint(2, 20)
     # Move the sprite based on speed
     # Remove the sprite when it passes the left edge of the screen
     def update(self):
@@ -97,6 +103,9 @@ while running:
             enemies.add(new_enemy)
             all_sprites.add(new_enemy)
 
+        elif event.type == MOUSEMOTION:
+            print(event.__dict__)
+
     # Get the set of keys pressed and check for user input
     pressed_keys = pygame.key.get_pressed()
     player.update(pressed_keys)
@@ -109,8 +118,9 @@ while running:
     for entity in all_sprites:
         screen.blit(entity.surf, entity.rect)
 
-    if pygame.sprite.spritecollideany(player, enemies):
-        player.kill()
-        running = False
+    # if pygame.sprite.spritecollideany(player, enemies):
+    #     player.kill()
+    #     running = False
 
     pygame.display.flip()
+    clock.tick(60)
