@@ -46,17 +46,24 @@ class Piece(pygame.sprite.Sprite):
         screen.blit(self.surface, self.rect)
 
     def save_mous_down_pos(self, pos):
-        print("Dowm")
-        print((pos[0],self.last_pos[0]))
-        self.mouse_down_offset_x = pos[0] - self.last_pos[0]
-        self.mouse_down_offset_y = pos[1] - self.last_pos[1]
+        self.mouse_down_offset_y = pos[0] - self.last_pos[1] # left rigt
+        self.mouse_down_offset_x = pos[1] - self.last_pos[0] # top bottom
+    
+    def save_mous_up_pos(self, pos):
+        self.last_pos = pos
 
 
     def move(self):
         y, x = pygame.mouse.get_pos()
-        print((x, self.mouse_down_offset_x))
-        self.rect.left = y + self.mouse_down_offset_y
-        self.rect.top = x + self.mouse_down_offset_x
+        # print((x, y))
+        self.rect.left = y - self.mouse_down_offset_y
+        self.rect.top = x - self.mouse_down_offset_x
+
+    def place_piece(self, pos):
+        self.rect.left = pos[1]
+        self.rect.top = pos[0]
+        self.last_pos = pos
+
 
     def is_clicked(self):
         return pygame.mouse.get_pressed()[0] and self.rect.collidepoint(pygame.mouse.get_pos())
@@ -79,7 +86,7 @@ def prep_squares():
 class Square(pygame.sprite.Sprite):
     def __init__(self, name, position) -> None:
         super(Square, self).__init__()
-        self.square_surf = pygame.Surface((44, 44), pygame.SRCALPHA, 32).convert_alpha()
+        self.square_surf = pygame.Surface((45, 45), pygame.SRCALPHA, 32).convert_alpha()
         # self.square_surf.fill((100, 255, 100))
         self.name = name
         self.rect = self.square_surf.get_rect(top=position[0], left=position[1])
@@ -219,9 +226,6 @@ class Game:
                 elif event.type == MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
                     clicked_piece = [s for s in self.pieces if s.rect.collidepoint(pos)]
-                    # clicked_square = [s for s in self.squares if s.rect.collidepoint(pos)]
-                    # [print(e.name) for e in clicked_piece]
-                    # [print(e.name) for e in clicked_square]
                     if clicked_piece:
                         drag_piece = clicked_piece[0]
                         drag_piece.save_mous_down_pos(pos)
@@ -232,13 +236,19 @@ class Game:
                         drag_piece.move()
                 
                 elif event.type == MOUSEBUTTONUP:
-                    drag_piece = None
-                    dragging = False
+                    if dragging:
+                        pos = pygame.mouse.get_pos()
+                        drop_square = [s for s in self.squares if s.rect.collidepoint(pos)]
+                        drag_piece.place_piece(self.square_dict[drop_square[0].name])
+                        drag_piece = None
+                        dragging = False
 
 
             self.board.draw(self.screen)
             self.squares.update(self.screen)
             self.pieces.update(self.screen)
+            if dragging:
+                self.screen.blit(drag_piece.surface, drag_piece.rect)  
 
             pygame.display.flip()
 
