@@ -1,0 +1,27 @@
+class SpriteObject(pygame.sprite.Sprite):
+    # [...]
+
+    def update(self, event_list):
+
+        for event in event_list:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.rect.collidepoint(event.pos):
+                    # [...]
+
+my_sprite = SpriteObject()
+group = pygame.sprite.Group(my_sprite)
+
+# [...]
+
+run = True
+while run:
+    event_list = pygame.event.get()
+    for event in event_list:
+        if event.type == pygame.QUIT:
+            run = False 
+
+    group.update(event_list)
+
+
+
+https://stackoverflow.com/questions/10990137/pygame-mouse-clicking-detection
