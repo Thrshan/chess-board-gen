@@ -232,29 +232,32 @@ class Game:
                 elif event.type == MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
                     clicked_piece = [s for s in self.pieces if s.rect.collidepoint(pos)]
-
-                    if clicked_piece:
-                        clicked_square = [s for s in self.squares if s.rect.collidepoint(pos)][0]
-                        clicked_square.occupied = False
-                        drag_piece = clicked_piece[0]
-                        drag_piece.save_mous_down_pos(pos)
-                        dragging = True
+                    if event.button == 1:
+                        if clicked_piece:
+                            clicked_square = [s for s in self.squares if s.rect.collidepoint(pos)][0]
+                            clicked_square.occupied = False
+                            drag_piece = clicked_piece[0]
+                            drag_piece.save_mous_down_pos(pos)
+                            dragging = True
+                    elif event.button == 3:
+                        clicked_piece[0].kill()
 
                 elif event.type == MOUSEMOTION:
                     if dragging:
                         drag_piece.move()
                 
                 elif event.type == MOUSEBUTTONUP:
-                    if dragging:
-                        pos = pygame.mouse.get_pos()
-                        drop_square = [s for s in self.squares if s.rect.collidepoint(pos)][0]
-                        piece_in_drop_square = [s for s in self.pieces if s.rect.collidepoint(pos)]
-                        if len(piece_in_drop_square) > 1:
-                            drag_piece.place_piece(None)
-                        else:
-                            drag_piece.place_piece(self.square_dict[drop_square.name])
-                        drag_piece = None
-                        dragging = False
+                    if event.button == 1:
+                        if dragging:
+                            pos = pygame.mouse.get_pos()
+                            drop_square = [s for s in self.squares if s.rect.collidepoint(pos)][0]
+                            piece_in_drop_square = [s for s in self.pieces if s.rect.collidepoint(pos)]
+                            if len(piece_in_drop_square) > 1:
+                                drag_piece.place_piece(None)
+                            else:
+                                drag_piece.place_piece(self.square_dict[drop_square.name])
+                            drag_piece = None
+                            dragging = False
 
 
             self.board.draw(self.screen)
