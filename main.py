@@ -1,6 +1,10 @@
 import pygame
 
 from PIL import Image
+import numpy as np
+from board import create_board
+
+# from board import ( CONSTANTS )
 
 
 from pygame.locals import (
@@ -22,11 +26,11 @@ SCREEN_HEIGHT = 500
 
 class Board:
     def __init__(self) -> None:
-        board_image = Image.open("./assets/board/board.png")
-        resized_board_image = board_image.resize((368, 368))
-        board_image_data = resized_board_image.tobytes()
-        board_image_dimensions = resized_board_image.size
-        mode = resized_board_image.mode
+        # board_image = Image.open("./assets/board/board.png")
+        board_image = create_board()
+        board_image_data = board_image.tobytes()
+        board_image_dimensions = board_image.size
+        mode = board_image.mode
         self.board_surface = pygame.image.fromstring(board_image_data, board_image_dimensions, mode)
         
     def draw(self, screen):
@@ -73,8 +77,8 @@ class Piece(pygame.sprite.Sprite):
 
 
 def prep_squares():
-    play_area_left = 5
-    play_area_top = 5
+    play_area_left = 15
+    play_area_top = 10
     grid_length = 45
     grig_nos = 8
     squares = {}
@@ -82,8 +86,7 @@ def prep_squares():
     for i in range(8):
         for j in range(8):
             pos = "{}{}".format(chr(65+j), 8-i)
-            squares[pos] = ((i*45) + play_area_top, (j*45) + play_area_left)
-    
+            squares[pos] = ((i*grid_length) + play_area_top, (j*grid_length) + play_area_left)
     return squares
         
 class Square(pygame.sprite.Sprite):
