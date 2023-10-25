@@ -52,7 +52,6 @@ class Piece(pygame.sprite.Sprite):
     def save_mous_up_pos(self, pos):
         self.last_pos = pos
 
-
     def move(self):
         y, x = pygame.mouse.get_pos()
         # print((x, y))
@@ -60,9 +59,13 @@ class Piece(pygame.sprite.Sprite):
         self.rect.top = x - self.mouse_down_offset_x
 
     def place_piece(self, pos):
-        self.rect.left = pos[1]
-        self.rect.top = pos[0]
-        self.last_pos = pos
+        if pos == None:
+            self.rect.left = self.last_pos[1]
+            self.rect.top = self.last_pos[0]
+        else:
+            self.rect.left = pos[1]
+            self.rect.top = pos[0]
+            self.last_pos = pos
 
 
     def is_clicked(self):
@@ -87,7 +90,7 @@ class Square(pygame.sprite.Sprite):
     def __init__(self, name, position) -> None:
         super(Square, self).__init__()
         self.square_surf = pygame.Surface((45, 45), pygame.SRCALPHA, 32).convert_alpha()
-        # self.square_surf.fill((100, 255, 100))
+        # self.occupied = False
         self.name = name
         self.rect = self.square_surf.get_rect(top=position[0], left=position[1])
 
@@ -226,7 +229,10 @@ class Game:
                 elif event.type == MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
                     clicked_piece = [s for s in self.pieces if s.rect.collidepoint(pos)]
+
                     if clicked_piece:
+                        clicked_square = [s for s in self.squares if s.rect.collidepoint(pos)][0]
+                        clicked_square.occupied = False
                         drag_piece = clicked_piece[0]
                         drag_piece.save_mous_down_pos(pos)
                         dragging = True
@@ -238,8 +244,12 @@ class Game:
                 elif event.type == MOUSEBUTTONUP:
                     if dragging:
                         pos = pygame.mouse.get_pos()
-                        drop_square = [s for s in self.squares if s.rect.collidepoint(pos)]
-                        drag_piece.place_piece(self.square_dict[drop_square[0].name])
+                        drop_square = [s for s in self.squares if s.rect.collidepoint(pos)][0]
+                        piece_in_drop_square = [s for s in self.pieces if s.rect.collidepoint(pos)]
+                        if len(piece_in_drop_square) > 1:
+                            drag_piece.place_piece(None)
+                        else:
+                            drag_piece.place_piece(self.square_dict[drop_square.name])
                         drag_piece = None
                         dragging = False
 
